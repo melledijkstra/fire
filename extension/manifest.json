@@ -3,23 +3,9 @@
     "version": "1.0",
     "description": "Download rabobank transactions and automatically put them in google sheets",
     "manifest_version": 2,
-    "permissions": [
-        "activeTab",
-        "declarativeContent",
-        "storage",
-        "identity"
-    ],
+    "permissions": ["activeTab","declarativeContent","storage","identity"],
     "content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self';",
     "options_page": "options.html",
-    "page_action": {
-        "default_popup": "popup.html",
-        "default_icon": {
-            "16": "images/get_started16.png",
-            "32": "images/get_started32.png",
-            "48": "images/get_started48.png",
-            "128": "images/get_started128.png"
-        }
-    },
     "oauth2": {
         "client_id": "180157219371-530l2m5mlh0amfj80gd5al6o7fh98uei.apps.googleusercontent.com",
         "scopes": [
@@ -27,11 +13,9 @@
             "https://www.googleapis.com/auth/spreadsheets"
         ]
     },
-    "background": {
-        "scripts": [
-            "background.js"
-        ],
-        "persistent": false
+    "browser_action": {
+        "default_popup": "popup.html",
+        "default_icon": "images/get_started32.png"
     },
     "icons": {
         "16": "images/get_started16.png",

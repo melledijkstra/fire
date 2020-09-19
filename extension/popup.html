@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <style>
-        div {
-            margin: 10px;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
     <script src="papaparse.min.js"></script>
 </head>
 <body>
-    <div>
-        <label for="inputFile">Import file:</label>
-        <input type="file" id="inputFile"></input>
-    </div>
-    <button id="btnImport">Import</button>
+    <h1>Import Transactions</h1>
+    <form class="pure-form pure-form-stacked">
+        <div class="pure-control-group">
+            <label for="inputFile">Import file:</label>
+            <input type="file" id="inputFile"></input>
+        </div>
+        <button class="pure-button pure-button-primary" id="btnImport">Import</button>
+    </form>
+    <p id="status"></p>
     <script src="https://apis.google.com/js/api.js"></script>
+    <script src="sheets.js"></script>
     <script src="popup.js"></script>
 </html>
