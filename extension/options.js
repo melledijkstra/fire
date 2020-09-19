@@ -2,12 +2,15 @@ let btnSave = document.getElementById("btnSave");
 let inSpreadsheetId = document.getElementById("spreadsheetId");
 let inSheetId = document.getElementById("sheetId");
 
+var spreadsheetId;
+var sheetId;
+
 (function() {
-    console.log('hello world')
     chrome.storage.sync.get(['spreadsheetId', 'sheetId'], (result) => {
-        console.log(result);
-        inSpreadsheetId.value = result.spreadsheetId
-        inSheetId.value = result.sheetId
+        spreadsheetId = result.spreadsheetId;
+        sheetId = result.sheetId;
+        inSpreadsheetId.value = spreadsheetId;
+        inSheetId.value = sheetId;
     });
 })();
 
@@ -17,9 +20,7 @@ btnSave.onclick = (e) => {
     chrome.storage.sync.set({
         spreadsheetId,
         sheetId
-    }, () => {
-        setStatus("Settings saved!");
-    });
+    }, () => setStatus("Settings saved!"));
 }
 
 function setStatus(status) {
