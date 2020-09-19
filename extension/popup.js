@@ -5,6 +5,12 @@ function key(arr, value) {
     return parseInt(Object.keys(arr).find(key => arr[key] === value));
 }
 
+function transpose(a) {
+    return Object.keys(a[0]).map(function(c) {
+        return a.map(function(r) { return r[c]; });
+    });
+}
+
 function arrayMove(arr, old_index, new_index) {
     if (new_index >= arr.length) {
         var k = new_index - arr.length + 1;
@@ -19,25 +25,10 @@ function arrayMove(arr, old_index, new_index) {
 function correctColumns(data) {
     corrHeaders = ["Volgnr", "IBAN/BBAN", "Datum", "Bedrag", "Saldo na trn", "Naam tegenpartij", "Omschrijving-1", "", "", "", "", "Tegenrekening IBAN/BBAN", "", "Munt", "BIC", "Rentedatum", "Naam uiteindelijke partij", "Naam initi�rende partij", "BIC tegenpartij", "Code", "Batch ID", "Transactiereferentie", "Machtigingskenmerk", "Incassant ID", "Betalingskenmerk", "Omschrijving-2", "Omschrijving-3", "Reden retour", "Oorspr bedrag", "Oorspr munt", "Koers"];
     headers = data.shift(); // get the columns from the data
+    
+    data = transpose(data);
 
-    corrIs = [];
-    // which header IDs to switch
-    headers.forEach((header, i) => {
-        corrIs.push([i, key(corrHeaders, header)]);
-    });
-
-    console.log(headers, corrIs);
-
-    data.forEach((row) => { // loop through all the data
-        console.log(row);
-        corrIs.forEach((keys) => {
-            let [oldI, newI] = keys;
-            console.log(oldI, 'to', newI);
-            row = arrayMove(row, oldI, newI);
-        });
-        console.log(row);
-        throw exception();
-    });
+    console.log(data);
 }
 
 function insertData(data) {
@@ -61,11 +52,10 @@ btnImport.onclick = function (element) {
         complete: async (results) => {
             let data = results.data;
             console.log(data);
-            //correctColumns(data);
-            insertRows(data.length - 1);
-            data.shift();
-            await new Promise(r => setTimeout(r, 2000));
-            insertData(data);
+            correctColumns(data);
+            //insertRows(data.length - 1);
+            //await new Promise(r => setTimeout(r, 2000));
+            //insertData(data);
         }
     });
 };
