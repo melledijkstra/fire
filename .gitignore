@@ -1,2 +1,7 @@
 settings.py
 .vscode/
+
+node_modules/
+
+# don't commit api keys
+extension/config.ts
