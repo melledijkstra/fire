@@ -1,6 +1,6 @@
 # Fire Repository
 
-This resository contains some tools that I create to manage related things to FIRE.
+This repository contains some tools that I create to manage related things to FIRE.
 
 At this moment that is the automatic transaction importer.
 
