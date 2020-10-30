@@ -7,7 +7,7 @@
     "content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self';",
     "options_page": "options.html",
     "oauth2": {
-        "client_id": "180157219371-530l2m5mlh0amfj80gd5al6o7fh98uei.apps.googleusercontent.com",
+        "client_id": "180157219371-2p3tl7msu62skrpm9h5qjdh7t3e3vj2q.apps.googleusercontent.com",
         "scopes": [
             "https://www.googleapis.com/auth/spreadsheets.readonly",
             "https://www.googleapis.com/auth/spreadsheets"

@@ -1,5 +1,5 @@
 import { parse } from 'papaparse'
-import { insertData, insertRows } from "./sheets"
+import { buildInsertRowsRequest, buildInsertDataRequest, buildAutoFillRequest } from "./sheets"
 import * as H from './helpers'
 import { initializeGAPI } from './authentication'
 
@@ -61,24 +61,43 @@ function switchColumns(
     return corrData
 }
 
-function importRowsToSheets(file: File, config: {
+function importRowsToSheets(
+    file: File,
     spreadsheetId: string,
     sheetId: number,
-    columnOrder: string[]
-}) {
-    let { columnOrder } = config;
+    columnOrder: string[],
+    doAutoFill: boolean
+) {
+    console.log(doAutoFill)
     parse(file, {
         complete: async (results) => {
             let data: any[] = results.data
             H.cleanData(data)
             data = switchColumns(columnOrder, data)
-            insertRows(data.length, config)
-                .then(() => insertData(data, config))
-                .then((response) => {
-                    console.log(response.result)
-                    const { updatedRows, updatedColumns, updatedCells } = response.result
-                    setStatus(`rows: ${updatedRows}, cols: ${updatedColumns} added and ${updatedCells} cells updated.`)
-                })
+
+            let batchUpdateRequest: gapi.client.sheets.BatchUpdateSpreadsheetRequest = {
+                requests: [
+                    { insertDimension: buildInsertRowsRequest(sheetId, data.length) }, // create empty rows
+                ]
+            }
+
+            if (doAutoFill) {
+                batchUpdateRequest.requests = batchUpdateRequest.requests?.concat([
+                    { autoFill: buildAutoFillRequest(sheetId, data.length, 8) }, // category item column (I)
+                    { autoFill: buildAutoFillRequest(sheetId, data.length, 13) }, // disabled column (N)
+                ])
+            }
+
+            console.log(doAutoFill, batchUpdateRequest)
+
+            gapi.client.sheets.spreadsheets.batchUpdate({spreadsheetId}, batchUpdateRequest)
+            .then((response) => gapi.client.sheets.spreadsheets.values.update(
+                buildInsertDataRequest(spreadsheetId, data)
+            )).then((response) => {
+                console.log(response.result)
+                const { updatedRows, updatedColumns, updatedCells } = response.result
+                setStatus(`rows: ${updatedRows}, cols: ${updatedColumns} added and ${updatedCells} cells updated.`)
+            })
         },
         error: (error) => {
             console.log(error)
@@ -93,14 +112,16 @@ importForm.addEventListener('submit', (e) => {
         return;
     }
     let file = inputFile.files[0]
-    chrome.storage.sync.get(['spreadsheetId', 'sheetId', 'columnOrder'], (items) => {
+    chrome.storage.sync.get(['spreadsheetId', 'sheetId', 'columnOrder', 'autoFill'], (items) => {
         let columnOrder: string[] = items.columnOrder.split(',')
         columnOrder = columnOrder.map(s => s.trim())
-        importRowsToSheets(file, {
-            spreadsheetId: items.spreadsheetId,
-            sheetId: items.sheetId,
-            columnOrder: columnOrder
-        })
+        importRowsToSheets(
+            file,
+            items.spreadsheetId,
+            items.sheetId,
+            columnOrder,
+            items.autoFill
+        )
     })
 
 })

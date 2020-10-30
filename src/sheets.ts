@@ -1,41 +1,43 @@
-export function insertData(rows: any[][], config: {
-    spreadsheetId: string
-}) {
-    const { spreadsheetId } = config
-    let body = {
-        values: rows
-    };
-    return gapi.client.sheets.spreadsheets.values.update({
+export function buildInsertDataRequest(spreadsheetId: string, rows: any[][]) {
+    return {
         spreadsheetId,
         range: `A2:${rows.length + 1}`,
         valueInputOption: "USER_ENTERED",
-        resource: body
-    });
+        resource: {
+            values: rows
+        }
+    };
 }
 
-export function insertRows(amount: number, config: {
-    spreadsheetId: string,
-    sheetId: number
-}) {
-    const {spreadsheetId, sheetId} = config
-    var emptyRowsRequest = {
-        requests: [
-            {
-                "insertDimension": {
-                    "range": {
-                        "sheetId": sheetId,
-                        "dimension": "ROWS",
-                        "startIndex": 1,
-                        "endIndex": amount + 1
-                    },
-                    "inheritFromBefore": false
-                }
-            }
-        ]
+export function buildAutoFillRequest(sheetId: number, length: number, columnIndex: number): gapi.client.sheets.AutoFillRequest {
+    return {
+        useAlternateSeries: false,
+        sourceAndDestination: {
+            source: {
+                sheetId,
+                startRowIndex: 1, // end at second row, because first row are headers
+                endRowIndex: length + 1, // start at last row that was still populated, this is the reference for the autofill
+                startColumnIndex: columnIndex,
+                endColumnIndex: columnIndex
+            },
+            dimension: "ROWS", // autofill rows
+            fillLength: -length // autofill up with the length of the given data
+        }
     }
-    let params = { spreadsheetId: spreadsheetId }
+}
 
-    return gapi.client.sheets.spreadsheets.batchUpdate(params, emptyRowsRequest);
+export function buildInsertRowsRequest(
+    sheetId: number,
+    amount: number
+): gapi.client.sheets.InsertDimensionRequest {
+    return {
+        range: {
+            sheetId: sheetId,
+            dimension: "ROWS",
+            startIndex: 1,
+            endIndex: amount + 1
+        }
+    }
 }
 
 export function getSheetNames(spreadsheetId: string) {

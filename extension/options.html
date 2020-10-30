@@ -20,8 +20,13 @@
       padding: 0;
     }
 
-    input, textarea, select {
+    input:not([type]), input[type=text], textarea, select {
       width: 343px;
+    }
+
+    input[type=checkbox] {
+      height: 20px;
+      width: 20px;
     }
 
     #status {
@@ -51,6 +56,10 @@
         <label for="columnOrder">Column order:</label>
         <textarea id="columnOrder" cols="20" rows="4" >Volgnr, IBAN/BBAN, Datum, Bedrag, Saldo na trn, Naam tegenpartij, Omschrijving-1, , , , , , Tegenrekening IBAN/BBAN, , Munt, BIC, Rentedatum, Naam uiteindelijke partij, Naam initi�rende partij, BIC tegenpartij, Code, Batch ID, Transactiereferentie, Machtigingskenmerk, Incassant ID, Betalingskenmerk, Omschrijving-2, Omschrijving-3, Reden retour, Oorspr bedrag, Oorspr munt, Koers</textarea>
         <div style="text-align: right;">Example has been pre-filled</div>
+      </div>
+      <div style="text-align: left" class="pure-control-group">
+        <label for="checkAutoFill" >Autofill?</label>
+        <input id="checkAutoFill" type="checkbox" checked></input>
       </div>
       <button type="submit" id="btnSave" class="pure-button pure-button-primary">🎉&nbsp;&nbsp;Save settings</button>
     </form>

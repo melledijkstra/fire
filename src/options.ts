@@ -4,6 +4,7 @@ import { getSheetNames } from './sheets'
 const inSpreadsheetId: HTMLInputElement = <HTMLInputElement>document.getElementById("spreadsheetId")!
 const inSheetId: HTMLSelectElement = <HTMLSelectElement>document.getElementById("sheetId")!
 const inColumnOrder: HTMLInputElement = <HTMLInputElement>document.getElementById("columnOrder")!
+const checkAutoFill: HTMLInputElement = <HTMLInputElement>document.getElementById("checkAutoFill")!
 const statusElem = document.getElementById('status')!
 const btnAuth: HTMLButtonElement = <HTMLButtonElement>document.getElementById('oauth')!
 const btnRemove: HTMLButtonElement = <HTMLButtonElement>document.getElementById('remove')!
@@ -22,9 +23,10 @@ function setStatus(s: string) {
         console.log('error', error);
         setStatus('Not authorized, click the button to authorize this app')
     });
-    chrome.storage.sync.get(['spreadsheetId', 'columnOrder'], (items) => {
+    chrome.storage.sync.get(['spreadsheetId', 'columnOrder', 'autoFill'], (items) => {
         inSpreadsheetId.value = items.spreadsheetId || inSpreadsheetId.value
         inColumnOrder.value = items.columnOrder || inColumnOrder.value
+        checkAutoFill.checked = items.autoFill !== null ? items.autoFill : checkAutoFill.checked
     });
 })();
 
@@ -107,10 +109,12 @@ settingsFrom.addEventListener('submit', (e) => {
     let spreadsheetId = inSpreadsheetId.value
     let sheetId = inSheetId.options[inSheetId.selectedIndex].value
     let columnOrder = inColumnOrder.value
+    let autoFill = checkAutoFill.checked
     chrome.storage.sync.set({
         spreadsheetId,
         sheetId,
-        columnOrder
+        columnOrder,
+        autoFill
     }, () => setStatus("Settings saved!"))
 })
 
