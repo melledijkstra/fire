@@ -1,5 +1,5 @@
 {
-    "name": "Transaction Importer (Fire)",
+    "name": "Transaction Importer",
     "version": "1.0",
     "description": "Import transactions and automatically push them in google sheets",
     "manifest_version": 2,
