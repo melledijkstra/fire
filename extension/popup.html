@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="css/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
     <style>
-        button {
+        button, select {
             width: 100%;
         }
 
@@ -23,6 +23,10 @@
         <div class="pure-control-group">
             <label for="inputFile">Import file:</label>
             <input disabled type="file" id="inputFile" required></input>
+        </div>
+        <div class="pure-control-group">
+            <label for="settingsProfile">Settings Profile:</label>
+            <select disabled id="settingsProfile" required></select>
         </div>
         <button disabled class="pure-button pure-button-primary" id="btnImport">💸&nbsp;&nbsp;&nbsp;IMPORT&nbsp;&nbsp;💸</button>
     </form>

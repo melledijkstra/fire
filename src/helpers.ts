@@ -3,10 +3,8 @@ export function getKey(arr: string[], value: string) {
     return parseInt(num)
 }
 
-export function transpose(a: any[][]) {
-    return Object.keys(a[0]).map(function (c: any) {
-        return a.map(function (r) { return r[c]; });
-    });
+export function transpose(arr: any[][]) {
+    return Object.keys(arr[0]).map((c: any) => { return arr.map((r) => { return r[c] })})
 }
 
 export function goToOptions() {

@@ -52,11 +52,20 @@
         <label for="sheetId">Select sheet ID:</label>
         <select id="sheetId" required disabled></select>
       </div>
-      <div class="pure-control-group">
-        <label for="columnOrder">Column order:</label>
-        <textarea id="columnOrder" cols="20" rows="4" >Volgnr, IBAN/BBAN, Datum, Bedrag, Saldo na trn, Naam tegenpartij, Omschrijving-1, , , , , , Tegenrekening IBAN/BBAN, , Munt, BIC, Rentedatum, Naam uiteindelijke partij, Naam initi�rende partij, BIC tegenpartij, Code, Batch ID, Transactiereferentie, Machtigingskenmerk, Incassant ID, Betalingskenmerk, Omschrijving-2, Omschrijving-3, Reden retour, Oorspr bedrag, Oorspr munt, Koers</textarea>
+      <fieldset>
+        <legend>CSV Import Settings Profile</legend>
+        <div class="pure-control-group">
+          <label for="profileName">Profile Name:</label>
+          <input style="width: 300px" type="text" id="profileName" list="profileList" disabled required>
+          <button id="deleteProfile" class="pure-button pure-button-warning" type="button">🚮</button>
+          <datalist id="profileList" />
+        </div>
+        <div class="pure-control-group">
+          <label for="columnOrder">Column order:</label>
+          <textarea id="columnOrder" cols="20" rows="4" disabled ></textarea>
+        </div>
         <div style="text-align: right;">Example has been pre-filled</div>
-      </div>
+      </fieldset>
       <div style="text-align: left" class="pure-control-group">
         <label for="checkAutoFill" >Autofill?</label>
         <input id="checkAutoFill" type="checkbox" checked></input>

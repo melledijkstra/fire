@@ -1,21 +1,28 @@
 import { initializeGAPI, removeToken, retrieveToken } from './authentication'
 import { getSheetNames } from './sheets'
+import { removeOptions, addOption } from './ui'
+import { Settings } from './types'
+import {settingsFromStorage, saveSettings} from './storage'
 
 const inSpreadsheetId: HTMLInputElement = <HTMLInputElement>document.getElementById("spreadsheetId")!
 const inSheetId: HTMLSelectElement = <HTMLSelectElement>document.getElementById("sheetId")!
 const inColumnOrder: HTMLInputElement = <HTMLInputElement>document.getElementById("columnOrder")!
+const inProfileName: HTMLInputElement = <HTMLInputElement>document.getElementById('profileName')!
+const profileDataList: HTMLDataListElement = <HTMLDataListElement>document.getElementById('profileList')!
 const checkAutoFill: HTMLInputElement = <HTMLInputElement>document.getElementById("checkAutoFill")!
 const statusElem = document.getElementById('status')!
 const btnAuth: HTMLButtonElement = <HTMLButtonElement>document.getElementById('oauth')!
 const btnRemove: HTMLButtonElement = <HTMLButtonElement>document.getElementById('remove')!
-
+const btnDeleteProfile: HTMLButtonElement = <HTMLButtonElement>document.getElementById('deleteProfile')!
 const settingsFrom: HTMLFormElement = <HTMLFormElement>document.getElementById('settingsForm');
 
-function setStatus(s: string) {
+let baseSettings: Settings;
+
+const setStatus = (s: string) => {
     statusElem.innerText = s
 }
 
-(function () { // runs when DOM is loaded
+(() => { // runs when DOM is loaded
     initializeGAPI(() => {
         console.log('gapi initialized and token retrieved')
         onAuthorized()
@@ -23,14 +30,17 @@ function setStatus(s: string) {
         console.log('error', error);
         setStatus('Not authorized, click the button to authorize this app')
     });
-    chrome.storage.sync.get(['spreadsheetId', 'columnOrder', 'autoFill'], (items) => {
-        inSpreadsheetId.value = items.spreadsheetId || inSpreadsheetId.value
-        inColumnOrder.value = items.columnOrder || inColumnOrder.value
-        checkAutoFill.checked = items.autoFill !== null ? items.autoFill : checkAutoFill.checked
-    });
+    settingsFromStorage((settings) => {
+        baseSettings = settings
+        Object.keys(settings.profiles).forEach((key) => {
+            addOption(profileDataList, settings.profiles[key], key, key)
+        })
+        inSpreadsheetId.value = settings.spreadsheetId || inSpreadsheetId.value
+        checkAutoFill.checked = settings.autoFill !== null ? settings.autoFill : checkAutoFill.checked
+    })
 })();
 
-function onAuthorized() {
+const onAuthorized = () => {
     setStatus('Authorized')
     chrome.storage.sync.get(['spreadsheetId', 'sheetId'], (items) => {
         onSpreadsheetChange(items.spreadsheetId, () => inSheetId.value = items.sheetId)
@@ -40,7 +50,7 @@ function onAuthorized() {
     })
 }
 
-function onSpreadsheetChange(spreadsheetId: string, afterChange?: () => void) {
+const onSpreadsheetChange = (spreadsheetId: string, afterChange?: () => void) => {
     getSheetNames(spreadsheetId).then((response) => {
         if(response.result.sheets !== undefined) buildSheetOptions(response.result.sheets)
         afterChange?.()
@@ -50,31 +60,17 @@ function onSpreadsheetChange(spreadsheetId: string, afterChange?: () => void) {
     })
 }
 
-function removeOptions() {
-    let l = inSheetId.options.length
-    for (let i = l - 1; i >= 0; i--) {
-        inSheetId.options.remove(i);
-    }
-}
-
-function buildSheetOptions(sheets: gapi.client.sheets.Sheet[]) {
+const buildSheetOptions = (sheets: gapi.client.sheets.Sheet[]) => {
     sheets.map((sheet) => {
         if (sheet.properties?.title !== undefined && sheet.properties.sheetId !== undefined) {
-            addOption(sheet.properties.title, sheet.properties.sheetId)
+            addOption(inSheetId, sheet.properties.title, sheet.properties.sheetId)
         }
     })
     inSheetId.disabled = false
 }
 
-function addOption(title: string, value: any) {
-    let opt = document.createElement('option')
-    opt.appendChild(document.createTextNode(title))
-    opt.value = String(value)
-    inSheetId.appendChild(opt)
-}
-
 inSpreadsheetId.addEventListener('change', (e) => {
-    removeOptions();
+    removeOptions(inSheetId);
     let newSSId = (<HTMLInputElement>e.target).value
     if (newSSId) {
         onSpreadsheetChange(newSSId)
@@ -104,18 +100,50 @@ btnRemove.addEventListener('click', (e) => {
     });
 })
 
+btnDeleteProfile.addEventListener('click', (e) => {
+    let pname = inProfileName.value
+    if (pname in baseSettings.profiles) {
+        delete baseSettings.profiles[pname]
+        inColumnOrder.value = ""
+        let item = profileDataList.options.namedItem(pname)
+        if (item) {
+            profileDataList.options[item.index].remove()
+        }
+        inProfileName.value = ""
+    }
+})
+
+inProfileName.addEventListener('change', (e) => {
+    let pname = inProfileName.value
+    inColumnOrder.value = (pname in baseSettings.profiles) ? baseSettings.profiles[pname] : ""
+})
+
+inColumnOrder.addEventListener('change', (e) => {
+    let pname = inProfileName.value
+    let listItem = <HTMLOptionElement>profileDataList.querySelector(`[value="${pname}"]`)
+    if (listItem !== null) {
+        listItem.innerText = inColumnOrder.value
+    }
+})
+
 settingsFrom.addEventListener('submit', (e) => {
     e.preventDefault()
-    let spreadsheetId = inSpreadsheetId.value
-    let sheetId = inSheetId.options[inSheetId.selectedIndex].value
-    let columnOrder = inColumnOrder.value
-    let autoFill = checkAutoFill.checked
-    chrome.storage.sync.set({
-        spreadsheetId,
-        sheetId,
-        columnOrder,
-        autoFill
-    }, () => setStatus("Settings saved!"))
+    const newSettings: Settings = {
+        spreadsheetId: inSpreadsheetId.value,
+        sheetId: parseInt(inSheetId.options[inSheetId.selectedIndex].value),
+        profiles: {
+            ...baseSettings.profiles,   
+            [inProfileName.value]: inColumnOrder.value
+        },
+        autoFill: checkAutoFill.checked
+    }
+    saveSettings(
+        newSettings, 
+        () => {
+            setStatus("Settings saved!")
+            baseSettings = newSettings
+        }
+    )
 })
 
 setStatus('Extension loaded');
